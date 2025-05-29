@@ -4,6 +4,7 @@ import { User } from '../models/user.model.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
 import { ApiError } from '../utils/ApiError.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
+import { Notification } from '../models/notification.model.js'
 
 const addCommentToVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
@@ -22,7 +23,16 @@ const addCommentToVideo = asyncHandler(async (req, res) => {
         owner: req.user._id
     })
 
-    console.log(`Notify video owner (${video.owner}) about comment from user {${req.user._id}}`);
+    // ✅ Add notification
+    if (video.owner.toString() !== req.user._id.toString()) {
+        await Notification.create({
+            sender: req.user._id,
+            receiver: video.owner,
+            video: video._id,
+            type: "comment"
+        })
+    }
+
     return res.status(201)
         .json(new ApiResponse(201, comment, "Comment added successfully"))
 })
