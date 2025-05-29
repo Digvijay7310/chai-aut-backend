@@ -19,5 +19,13 @@ const likeSchema = new Schema({
     }
 }, { timestamps: true })
 
+likeSchema.pre("validate", function (next) {
+    const count = [this.video || this.comment || this.tweet].filter(Boolean).length;
+    if (count !== 1) {
+        return next(new Error("Exactly one of video, comment and tweet must be provided"))
+    }
+    next()
+})
+
 
 export const Like = mongoose.model("Like", likeSchema);

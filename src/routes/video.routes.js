@@ -31,7 +31,7 @@ router.route("/my-videos").get(
 router.route("/video/:id").get(
     verifyJWT, getSingleVideo
 )
-router.route("/delte-video/:id").delete(
+router.route("/delete-video/:id").delete(
     verifyJWT, deleteVideo
 )
 

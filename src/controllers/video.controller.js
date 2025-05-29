@@ -5,6 +5,7 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { Video } from "../models/video.model.js";
 
 
+
 const getVideoFromUser = asyncHandler(async (req, res) => {
     //check user is logged or not
     // upload them to cloudinary 
@@ -63,6 +64,8 @@ const getAllVideos = asyncHandler(async (req, res) => {
     if (!videos) {
         throw new ApiError(500, "While fetching videos there is an error")
     }
+
+    console.log("Get all video: ", videos)
     res.status(201)
         .json(
             new ApiResponse(201, videos, "All video fetch successfully")
@@ -77,6 +80,8 @@ const getSingleVideo = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Video not found")
     }
 
+    console.log("Get Single Video", video, video._id)
+
     res.status(201)
         .json(
             201, video, "Successfully fetch a video"
@@ -90,6 +95,8 @@ const deleteVideo = asyncHandler(async (req, res) => {
     if (!video) {
         throw new ApiError(404, "Video not found or already deleted")
     }
+
+    console.log("Deleted video: ", video, video._id)
 
     res.status(201)
         .json(
