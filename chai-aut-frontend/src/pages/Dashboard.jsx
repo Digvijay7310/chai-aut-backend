@@ -1,68 +1,48 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api";
 import { TiUploadOutline } from "react-icons/ti";
 import { FaRegUser } from "react-icons/fa";
+import { TiUserDelete } from "react-icons/ti";
+import VideoWatch from "./VideoWatch";
 
 function Dashboard() {
   const [user, setUser] = useState(null);
+  const [videos, setVideos] = useState([]);
+
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchData = async () => {
       try {
-        const res = await API.get("/users/me");
-        setUser(res.data.user);
+        const [profileRes, videosRes] = await Promise.all([
+          API.get("/users/me"),
+          API.get("/videos/my-videos"), // ⬅️ Make sure this route exists on your backend
+        ]);
+        setUser(profileRes.data.user);
+        setVideos(videosRes.data.data); // assuming you wrapped response in ApiResponse
       } catch (err) {
+        console.error("Error fetching dashboard data:", err);
         navigate("/");
       }
     };
-    fetchProfile();
+
+    fetchData();
   }, [navigate]);
 
-  const handleUploadClick = () => {
-    // TODO: open upload modal or navigate to upload page
-    alert("Upload button clicked!");
-  };
-
-  /* const fetchVideos = async () => {
-      try {
-        const res = await API.get("/users/videos");
-        setVideos(res.data.videos || []);
-      } catch (err) {
-        console.error("Failed to load videos", err);
-      }
-    };
-    fetchUser();
-    fetchVideos();
-  }, []);
-
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append("video", file);
-
+  const handleLogout = async () => {
     try {
-      await API.post("/users/videos/upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-    //   Refresh videos list
-        const updated = await API.get("/users/videos");
-      setVideos(updated.data.videos || []);
+      await API.post("/users/logout");
+      navigate("/");
     } catch (err) {
-      console.error("Upload failed:", err.response?.data || err.message);
+      console.error("Logout failed:", err);
     }
   };
 
-  const triggerUpload = () => {
-    fileInputRef.current.click();
+  const handleUploadClick = () => {
+    navigate("/videos/video-upload");
   };
-  */
+
   return (
     <div>
       <div className="min-h-screen bg-gray-100">
@@ -79,25 +59,45 @@ function Dashboard() {
             </button>
             <FaRegUser size={28} className="text-gray-700" />
           </div>
+          <button onClick={handleLogout} title="logout">
+            <TiUserDelete size={28} />
+          </button>
         </header>
 
         {/* Main */}
         <main className="p-6">
-          <h2 className="text-2xl font-semibold mb-4">Welcome, {user?.name}</h2>
+          <h2 className="text-2xl font-semibold mb-4">
+            Welcome, {user?.username}
+          </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {/* Example video cards */}
-            {[1, 2, 3].map((video) => (
-              <div
-                key={video}
-                className="bg-white rounded shadow p-4 hover:shadow-lg transition"
-              >
-                <div className="bg-gray-300 h-40 rounded mb-3"></div>
-                <h3 className="font-semibold">Sample Video Title</h3>
-                <p className="text-sm text-gray-500">1K views • 2 days ago</p>
-              </div>
-            ))}
-          </div>
+          {videos.length === 0 ? (
+            <p className="text-center text-gray-500">No videos uploaded yet.</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {videos.map((video) => (
+                <div
+                  key={video._id}
+                  className="bg-white rounded shadow p-4 hover:shadow-lg transition"
+                >
+                  <img
+                    src={video.thumbnail}
+                    alt={video.title}
+                    className="w-full h-40 object-cover rounded mb-2"
+                  />
+                  <h3 className="font-semibold text-lg">{video.title}</h3>
+                  <p className="text-sm text-gray-600">{video.description}</p>
+                  <div className="flex items-center mt-1 text-xs text-gray-400 gap-2">
+                    <img
+                      src={video.owner?.avatar}
+                      alt={video.owner?.username}
+                      className="w-5 h-5 rounded-full"
+                    />
+                    <span>By {video.owner?.username}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </main>
       </div>
       {/* <div className="max-2-2xl mx-auto p-6">

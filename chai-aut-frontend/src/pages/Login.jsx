@@ -4,20 +4,24 @@ import { Link, useNavigate } from "react-router-dom";
 
 function Login() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [username, setUsername] = useState("");
+  const [form, setForm] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    e.stopPropagation();
-
     try {
-      const res = await API.post("/users/login", { username, email, password });
-      console.log("Login success: ", res.data);
+      await API.post("/users/login", form); // token will be set in cookie
       navigate("/users/dashboard");
     } catch (error) {
-      console.log("Login Failed: ", error.response?.data || error.message);
+      setError(error.response?.data?.message || "Login failed");
     }
   };
   return (
@@ -28,33 +32,36 @@ function Login() {
         className="flex flex-col gap-4 p-4 max-w-sm mx-auto"
       >
         <h3 className="font-bold text-2xl text-center ">Login</h3>
+
+        {error && <p className="text-red-600 text-sm">{error}</p>}
+
         <input
           type="text"
           name="username"
           placeholder="Enter Your Username"
-          className="p-2 border"
+          className="p-2 border rounded"
           autoComplete="on"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          value={form.username}
+          onChange={handleChange}
         />
 
         <input
           type="email"
           name="email"
           placeholder="Enter Your Email"
-          className="p-2 border"
+          className="p-2 border rounded"
           autoComplete="on"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={form.email}
+          onChange={handleChange}
         />
         <input
           type="password"
           name="password"
           placeholder="Enter Your Password"
-          className="p-2 border"
+          className="p-2 border rounded"
           autoComplete="on"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={form.password}
+          onChange={handleChange}
         />
         <button
           className="bg-blue-500 text-white hover:bg-blue-700 hover:font-bold py-2 px-4 rounded"
