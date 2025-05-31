@@ -10,7 +10,8 @@ import {
     registerUser,
     updateAccountDetail,
     updateUserAvatar,
-    updateUserCoverImage
+    updateUserCoverImage,
+    userProfile
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
@@ -32,6 +33,8 @@ router.route("/register").post(
 )
 
 router.route("/login").post(loginUser)
+
+router.route("/me").get(verifyJWT, userProfile)
 
 //secured routes
 router.route("/logout").post(verifyJWT, logoutUser)

@@ -166,6 +166,15 @@ const loginUser = asyncHandler(async (req, res) => {
 
 })
 
+const userProfile = asyncHandler(async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select("-password")
+        res.status(200).json({ user })
+    } catch (err) {
+        res.status(500).json({ message: "failed to fetch profile" })
+    }
+})
+
 const logoutUser = asyncHandler(async (req, res) => {
     await User.findByIdAndUpdate(
         req.user._id,
@@ -474,5 +483,5 @@ const getWatchHistory = asyncHandler(async (req, res) => {
 
 export {
     registerUser, loginUser, logoutUser, refreshaccessToken, changeCurrentPassword, getCurrentUser, updateAccountDetail, updateUserAvatar, updateUserCoverImage,
-    getUserChannelProfile, getWatchHistory
+    getUserChannelProfile, getWatchHistory, userProfile
 }
