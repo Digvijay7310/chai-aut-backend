@@ -22,6 +22,7 @@ const generateAccessAndRefreshTokens = async (userId) => {
     }
 }
 
+
 const registerUser = asyncHandler(async (req, res) => {
     // get user details from fronted
     // validation - not empty
@@ -32,6 +33,11 @@ const registerUser = asyncHandler(async (req, res) => {
     // remove password and refresh token field from response
     // check for user creation 
     // return res
+
+    console.log("Files in req:", req.files);
+    if (!req.files || !req.files.avatar || req.files.avatar.length === 0) {
+        throw new ApiError(400, "Avatar file is required");
+    }
 
 
     const { fullName, email, username, password } = req.body
@@ -55,7 +61,7 @@ const registerUser = asyncHandler(async (req, res) => {
     if (existedUser) {
         throw new ApiError(409, "User with email or username already exists")
     }
-    console.log(req.files)
+    // console.log(req.files)
 
     //3rd check with multer hear all exess by multer
     const avatarLocalPath = req.files?.avatar[0]?.path;
@@ -74,8 +80,8 @@ const registerUser = asyncHandler(async (req, res) => {
     const avatar = await uploadOnCloudinary(avatarLocalPath)
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
-    if (!avatar) {
-        throw new ApiError(400, "Avatar file is required")
+    if (!req.files || !req.files.avatar || req.files.avatar.length === 0) {
+        throw new ApiError(400, "Avatar file is required");
     }
 
     const user = await User.create({
@@ -99,6 +105,9 @@ const registerUser = asyncHandler(async (req, res) => {
 
 })
 
+
+
+
 const loginUser = asyncHandler(async (req, res) => {
     // req body -> data
     // usernameor email
@@ -113,11 +122,11 @@ const loginUser = asyncHandler(async (req, res) => {
 
 
     const { username, email, password } = req.body;
-    console.log("Login request body:", req.body);
-    console.log("Searching user with:", {
-        email: email?.trim().toLowerCase(),
-        username: username?.trim()
-    });
+    // console.log("Login request body:", req.body);
+    // console.log("Searching user with:", {
+    //     email: email?.trim().toLowerCase(),
+    //     username: username?.trim()
+    // });
 
 
     if (!username && !email) {
@@ -147,7 +156,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
     const options = {
         httpOnly: true,
-        secure: true,
+        secure: false,
     }
 
     return res
