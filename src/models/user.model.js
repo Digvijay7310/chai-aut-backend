@@ -29,7 +29,8 @@ const userSchema = new Schema({
         required: true,
     },
     coverImage: {
-        type: String, //cloudinart url
+        type: String,
+        required: true, //cloudinart url
     },
     watchHistory: [
         {

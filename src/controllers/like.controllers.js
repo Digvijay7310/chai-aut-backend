@@ -71,47 +71,6 @@ const likeComment = asyncHandler(async (req, res) => {
 
 })
 
-const likeTweet = asyncHandler(async (req, res) => {
-    const { tweetId } = req.body;
-    const { userId } = req.user._id;
 
-    const existingLike = Like.findOne({ comment: commentId, likeBy: userId })
-
-    if (existingLike) {
-        throw new ApiError("You are already like this tweet")
-    }
-
-    const like = await Like.create({
-        comment: commentId,
-        likedBy: userId
-    });
-
-    res.status(200).json(
-        new ApiResponse(201, like, "Tweet Like successfully!")
-    )
-})
-
-const likeremove = asyncHandler(async (req, res) => {
-    const { type, id } = req.body;
-    const { userId } = req.user._id;
-
-    const filter = { likedBy: userId }
-    if (type === 'video') filter.video = id
-    else if (type === 'comment') filter.comment = id
-    else if (type === 'tweet') filter.tweet = id
-
-    else throw new ApiError(400, "invalid type")
-
-    const like = await findOneAndDelete(filter)
-
-    if (!like) {
-        throw new ApiError(400, "like not found")
-    }
-
-    res.status(200)
-        .json(201, like, `${type} unlike Successfully!`)
-
-
-})
 
 export { likeVideo, unlikeVideo, likeComment }
